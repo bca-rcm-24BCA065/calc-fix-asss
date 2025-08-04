@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pastel Scientific Calculator</title>
+  <style>
+    :root {
+      --bg-color: #fff7f0;
+      --display-color: #fbeaff;
+      --btn-color: #ffe0e9;
+      --btn-hover: #ffd6e0;
+      --operator-color: #ffe7cc;
+      --function-color: #d6f5e3;
+      --text-dark: #333;
+      --cancel-color: #f8c9c1;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      background: var(--bg-color);
+      color: var(--text-dark);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .calculator {
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 20px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+    }
+
+    .display {
+      background: var(--display-color);
+      padding: 15px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      text-align: right;
+      font-size: 1.8rem;
+      min-height: 50px;
+      word-wrap: break-word;
+    }
+
+    .keypad {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    button {
+      padding: 15px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      background: var(--btn-color);
+      color: var(--text-dark);
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    button:hover {
+      background: var(--btn-hover);
+    }
+
+    .operator { background: var(--operator-color); }
+    .function { background: var(--function-color); }
+    .cancel { background: var(--cancel-color); }
+    .equals {
+      grid-column: span 3;
+      background: var(--function-color);
+    }
+
+    @media (max-width: 480px) {
+      .row {
+        grid-template-columns: repeat(3, 1fr);
+      }
+      .equals {
+        grid-column: span 3;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="calculator">
+    <div class="display" id="display">0</div>
+    <div class="keypad">
+      <!-- Function & Operator Buttons -->
+      <div class="row">
+        <button class="function" data-value="sin">sin</button>
+        <button class="function" data-value="cos">cos</button>
+        <button class="function" data-value="tan">tan</button>
+        <button class="function" data-value="log">log</button>
+        <button class="function" data-value="ln">ln</button>
+        <button class="function" data-value="√">√</button>
+        <button class="function" data-value="π">π</button>
+        <button class="function" data-value="e">e</button>
+        <button class="operator" data-value="+">+</button>
+        <button class="operator" data-value="-">−</button>
+        <button class="operator" data-value="*">×</button>
+        <button class="operator" data-value="/">÷</button>
+      </div>
+
+      <!-- Number Buttons -->
+      <div class="row">
+        <button class="number" data-value="7">7</button>
+        <button class="number" data-value="8">8</button>
+        <button class="number" data-value="9">9</button>
+        <button class="number" data-value="4">4</button>
+        <button class="number" data-value="5">5</button>
+        <button class="number" data-value="6">6</button>
+        <button class="number" data-value="1">1</button>
+        <button class="number" data-value="2">2</button>
+        <button class="number" data-value="3">3</button>
+        <button class="number" data-value="0">0</button>
+        <button class="number" data-value=".">.</button>
+        <button class="equals" data-value="=">=</button>
+      </div>
+
+      <!-- Cancel Button -->
+      <div class="row">
+        <button class="cancel" data-value="C">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const display = document.getElementById("display");
+    const buttons = document.querySelectorAll("button");
+    let expression = "";
+
+    function evaluateExpression(expr) {
+      try {
+        expr = expr.replace(/π/g, Math.PI)
+                   .replace(/e/g, Math.E)
+                   .replace(/√/g, "Math.sqrt")
+                   .replace(/sin/g, "Math.sin")
+                   .replace(/cos/g, "Math.cos")
+                   .replace(/tan/g, "Math.tan")
+                   .replace(/log/g, "Math.log10")
+                   .replace(/ln/g, "Math.log");
+
+        const result = Function('"use strict"; return (' + expr + ')')();
+        return Number.isFinite(result) ? result.toFixed(6).replace(/\\.0+$/, "") : "Error";
+      } catch {
+        return "Error";
+      }
+    }
+
+    buttons.forEach(button => {
+      button.addEventListener("click", () => {
+        const value = button.dataset.value;
+
+        if (value === "C") {
+          expression = "";
+          display.textContent = "0";
+          return;
+        }
+
+        if (value === "=") {
+          display.textContent = evaluateExpression(expression);
+          expression = "";
+          return;
+        }
+
+        expression += value;
+        display.textContent = expression;
+      });
+    });
+  </script>
+</body>
+</html>
